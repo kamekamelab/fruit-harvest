@@ -1,8 +1,8 @@
 {
   "applicationId": "FruitHarvest",
   "displayName": "くだもの収穫",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "entrypoint": "index.html",
-  "download": "https://github.com/kamekamelab/fruit-harvest/releases/tag/v1.2.0",
-  "sourceCommit": "e7629ef8dd3c9fc6f27277e2bb240d94408a3b14"
+  "download": "https://github.com/kamekamelab/fruit-harvest/releases/tag/v1.3.0",
+  "artifactSha256": "c5a211f8b04358a516d6d41d1a2379615e62e984d906c52063a718003e74ac1c"
 }
