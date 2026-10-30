@@ -192,6 +192,10 @@ body.fullscreen .turn-handoff{inset:0}
 /* Preserve readable names instead of shrinking them to fit a fixed-height card. */
 .turn-panel{overflow-y:auto;overscroll-behavior:contain}
 .dice-stage{flex:none;height:clamp(178px,30vh,300px)}
+.dice-stage.roll-calling::after{content:"";position:absolute;inset:0;border-radius:24px;pointer-events:none;border:8px solid #ffd65b;background:radial-gradient(ellipse,transparent 30%,rgb(255 214 91 / 48%) 68%,transparent 90%);animation:dice-invite 2.2s ease-in-out infinite}
+@keyframes dice-invite{0%,15%,85%,100%{opacity:0}45%,55%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.dice-stage.roll-calling::after{animation:none;opacity:.65}}
+.reduced-motion .dice-stage.roll-calling::after{animation:none;opacity:.65}
 .turn-panel,.player-card,.active-person,#activeName{touch-action:pan-y}
 .active-person{overflow:visible}
 #activeName{height:auto;min-height:2.4em;overflow:visible;font-size:max(1.25rem,clamp(26px,2.3vw,34px));overflow-wrap:anywhere}
@@ -219,6 +223,11 @@ body.fullscreen .turn-handoff{inset:0}
 .basket-drop{position:absolute;z-index:8;pointer-events:none;border:4px dashed var(--ink);outline:2px solid var(--surface);outline-offset:1px;border-radius:18px;background:transparent;box-shadow:0 0 0 7px rgb(255 243 207 / 45%);color:var(--ink);font-weight:700;text-align:center}
 .basket-drop span{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%);padding:6px 12px;border:2px solid var(--border);border-radius:14px;background:#fff3cf;font-size:clamp(16px,1.5vw,24px);white-space:nowrap}
 .welcome-art.field-preview .welcome-fruit{width:28%;height:50%}
+.welcome-art.has-3d:not(.field-preview) .welcome-crow{display:block;z-index:2}
+.welcome-art.field-preview .welcome-fruit.f-grape{width:22%;height:40%;top:10%}
+.dice-stage.roll-ready,:where(.pointer-mouse) .dice-stage.roll-ready:hover{outline:4px solid var(--ink);outline-offset:2px;box-shadow:none}
+.switch-guide.dice-prompt{min-height:86px;font-size:clamp(22px,2vw,30px);line-height:1.4;padding:8px 10px 12px;background:#ffe397;border:3px solid var(--ink)}
+.switch-guide.dice-prompt::before{content:"↑";display:block;font-size:32px;line-height:1.1}
 .input-method{display:inline-block;padding:4px 10px;border:1px solid var(--border);border-radius:12px;background:#fff3cf;color:var(--ink);font-weight:700}
 .order-method{display:block;max-width:90px;font-size:.75rem;line-height:1.4;white-space:normal;overflow-wrap:anywhere;color:var(--ink)}
 .fruit-target{touch-action:none}
@@ -241,7 +250,7 @@ body.fullscreen .turn-handoff{inset:0}
 <div class="brand" aria-label="くだもの収穫 Fruit Harvest"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M23 22C1 27 4 3 23 7c8 1 11 9 9 16C54 18 49 45 30 41c-8-2-10-9-7-19Z" fill="currentColor"/><path d="M13 35 35 13" stroke="#fffdf8" stroke-width="3" stroke-linecap="round"/></svg></span><span><strong>くだもの収穫</strong><small>FRUIT HARVEST</small></span></div>
 <nav class="header-actions" aria-label="アプリの操作"><button id="muteButton" class="icon-button" aria-label="音を消す" data-ui-icon="volume"></button><button id="fullscreenButton" class="icon-button" aria-label="全画面表示にする" data-ui-icon="fullscreen" data-native></button><button id="helpButton" class="icon-button" aria-label="遊び方" data-ui-icon="help"></button><button id="optionsButton" class="icon-button" aria-label="設定" data-ui-icon="settings"></button></nav></header><button id="fullscreenExitButton" class="icon-button fullscreen-exit" data-native aria-label="全画面を終了する" data-ui-icon="fullscreen-exit" hidden></button>
 <main id="setupView" class="setup-view">
-<div class="setup-heading"><div><p class="eyebrow">協力ゲーム</p><h1>ゲームの準備</h1><p class="lead">参加者と難易度を設定して、ゲームを始めます。</p></div><span class="version">v1.7.0</span></div>
+<div class="setup-heading"><div><p class="eyebrow">協力ゲーム</p><h1>ゲームの準備</h1><p class="lead">参加者と難易度を設定して、ゲームを始めます。</p></div><span class="version">v1.8.0</span></div>
 <fieldset id="setupEnvironmentChoices" class="environment-choices"><legend>あそぶ場所をえらぶ</legend><div class="environment-choice-grid"><label><input type="radio" name="environment" value="forest" checked><span><strong>森で遊ぶ</strong><small>くだもの・カラス</small></span></label><label><input type="radio" name="environment" value="field"><span><strong>畑で遊ぶ</strong><small>やさい・うさぎ（むずかしい）</small></span></label></div><p id="environmentNote" class="small-note"></p></fieldset>
 <div id="resumeBanner" class="resume-banner" hidden><span>まえのゲームが のこっています。</span><button id="resumeButton" class="button">つづきから あそぶ</button></div>
 <div class="setup-layout">
@@ -264,7 +273,7 @@ body.fullscreen .turn-handoff{inset:0}
 <p class="help-license-note">操作方法は準備画面で一人ずつ設定します。マウス・タッチは絵を見て自分で選ぶ操作、スイッチは自分で押して参加する操作です。スイッチでは先生と相談して候補を選ぶため、押せたことと自分で選べたことは分けて見取ります。右クリック信号を1回ずつ使います。交代画面を閉じる、さいころを振る、1個取る、は別々の操作です。1個の出目でもかごでも、本人の希望を確認して先生が作物を左クリック・タッチで候補にし、本人のスイッチで収穫します。「設定」の「先生用の操作設定」から操作設定と右クリックの反応テストを確認できます。一時停止中は演出・音・通知の残り時間も止まり、閉じると続きます。「できた！」の表示時間は設定または先生の画面で1.8秒・3秒・5秒から選べます。音OFFや音量0では、誤選択にも控えめな輪郭と案内が出ます。ゲーム画面の外や先生の画面ではスイッチでゲームを動かせません。</p>
 <p class="help-license-note" lang="en">Licenses and usage information are available at the bottom of Settings.</p></dialog>
 <dialog id="aboutDialog" lang="en" class="modal about-modal" aria-labelledby="aboutTitle" aria-describedby="aboutLead"><div class="modal-heading"><h2 id="aboutTitle">Licenses &amp; usage</h2><button class="icon-button close-button" data-close aria-label="Close" data-ui-icon="close"></button></div><p id="aboutLead" class="dialog-lead">Application, third-party materials and user data have separate terms. Full third-party notices are included in this offline HTML.</p>
-<section class="license-section"><h3>Application</h3><p><strong>Fruit Harvest v1.7.0</strong></p><p><strong>Application public license: not set</strong></p><p>No public open-source license has been assigned to the original application. This notice does not grant new permission to use, modify or redistribute it.</p><p class="license-note">The third-party licenses below apply to their respective code and materials, not to the application itself.</p></section>
+<section class="license-section"><h3>Application</h3><p><strong>Fruit Harvest v1.8.0</strong></p><p><strong>Application public license: not set</strong></p><p>No public open-source license has been assigned to the original application. This notice does not grant new permission to use, modify or redistribute it.</p><p class="license-note">The third-party licenses below apply to their respective code and materials, not to the application itself.</p></section>
 <section class="license-section"><h3>Third-party code</h3><article class="license-item"><h4>Three.js 0.186.1</h4><p>Copyright © 2010-2026 three.js authors</p><p>Used under the MIT License. The original copyright and permission notice is included below.</p><details><summary>MIT License — full text</summary><pre class="license-text">The MIT License
 
 Copyright © 2010-2026 three.js authors
@@ -501,7 +510,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   const name=id=>crops().find(f=>f.id===id)?.name||(id==="crow"?(current==="field"?"うさぎ":"カラス"):"かご");
   function gesture(settings,person){return person?.inputMode==="switch"?"touch":settings.environment==="field"?"pull":person?.harvestMode==="drag"?"drag":"touch";}
   function operationLabel(settings,person){return person?.inputMode==="switch"?"スイッチ":gesture(settings,person)==="pull"?"上に ひきぬく":gesture(settings,person)==="drag"?"ドラッグで はこぶ":"タッチで とる";}
-  function pullComplete(start,end,height){const up=start.y-end.y;return up>=Math.max(44,Math.min(86,height*.14))&&Math.abs(end.x-start.x)<=Math.max(90,up*1.25);}
+  function pullComplete(start,end,height){return start.y-end.y>=Math.max(24,Math.min(42,height*.055));}
   function shuffleOrder(previous,random=Math.random){
     const ids=field.map(f=>f.id);for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
     if(previous&&ids.every((id,i)=>id===previous[i]))ids.push(ids.shift());return ids;
@@ -651,7 +660,8 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       const secondary=event.pointerType==="mouse"&&event.button===2;
       if(event.pointerType==="mouse"&&event.button!==0&&!secondary)return;
       const permitted=gate.down(event.pointerId);
-      if(gesture){cancelGesture();return;}
+      // Keep ownership with the first finger; additional contacts must still be released.
+      if(gesture){if(inPlay(event.target)&&!event.target.closest("[data-native]"))event.preventDefault();return;}
       if(!inPlay(event.target))return;
       if(event.target.closest("[data-native]"))return;
       if(secondary){
@@ -672,12 +682,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         if(controller)gesture={pointerId:event.pointerId,button,controller};else direct(button);
       }
     },{capture:true,passive:false});
-    document.addEventListener("pointermove",event=>{if(gesture?.pointerId===event.pointerId){event.preventDefault();gesture.controller.move(event);}},{capture:true,passive:false});
+    document.addEventListener("pointermove",event=>{if(gesture?.pointerId===event.pointerId){event.preventDefault();const current=gesture;if(current.controller.move(event)===true){gesture=null;direct(current.button);}}},{capture:true,passive:false});
     for(const name of ["pointerup","pointercancel"])document.addEventListener(name,event=>{
       if(gesture?.pointerId===event.pointerId){const previous=gesture;gesture=null;if(name==="pointerup"&&previous.controller.drop(event))direct(previous.button);else previous.controller.cancel();}
       gate.up(event.pointerId);
     },{capture:true,passive:true});
-    root.addEventListener("lostpointercapture",cancelGesture);
+    root.addEventListener("lostpointercapture",event=>{if(gesture?.pointerId===event.pointerId)cancelGesture();});
     document.addEventListener("click",event=>{
       if(!inPlay(event.target)||event.target.closest("[data-native]"))return;
       const button=actionFor(event.target);
@@ -792,7 +802,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     crow:'<path d="M27 55Q7 53 11 74l24-6M66 54q27-1 19 20l-24-9" fill="#41464b"/><ellipse cx="48" cy="60" rx="24" ry="27" fill="#383d43"/><circle cx="47" cy="31" r="23" fill="#383d43"/><circle cx="39" cy="28" r="8" fill="#fffdf8"/><circle cx="57" cy="28" r="8" fill="#fffdf8"/><circle cx="41" cy="29" r="4" fill="#22292c"/><circle cx="55" cy="29" r="4" fill="#22292c"/><path d="m38 38 10 14 10-14Z" fill="#eaba54"/><path d="M35 82v7m26-7v7" stroke="#bd934e" stroke-width="5" stroke-linecap="round"/>'
   };
   Object.assign(svgBody,{
-    broccoli:'<path d="M40 88 43 48h12l3 40Z" fill="#95ae71" stroke="#517743" stroke-width="2"/><path d="M47 66 28 48m24 16 18-19" stroke="#8ba45f" stroke-width="8" fill="none"/><path d="M26 53C7 52 10 29 26 28C25 10 49 6 56 22C72 9 89 28 79 41C93 56 69 69 57 58C45 72 28 66 26 53Z" fill="#477b43" stroke="#315c36" stroke-width="3"/><g fill="#63934c"><circle cx="30" cy="32" r="6"/><circle cx="45" cy="25" r="6"/><circle cx="64" cy="31" r="7"/><circle cx="74" cy="45" r="5"/><circle cx="50" cy="46" r="8"/><circle cx="31" cy="50" r="6"/></g>',
+    broccoli:'<path d="M40 86 42 48h13l3 38Q48 90 40 86Z" fill="#a3c67c" stroke="#598247" stroke-width="2"/><path d="M43 71Q24 72 24 59Q39 56 43 71M54 70Q73 72 73 58Q59 56 54 70" fill="#76aa61"/><path d="M26 56C8 56 7 33 23 30C21 15 37 8 48 20C58 7 77 14 76 30C94 35 89 57 73 58C67 70 53 66 48 61C39 71 27 67 26 56Z" fill="#64a658" stroke="#487f43" stroke-width="2.5"/><path d="M28 32Q28 23 38 24M51 25Q59 19 66 28" fill="none" stroke="#91c17b" stroke-width="4" stroke-linecap="round"/>',
     carrot:'<path d="M33 34Q48 26 63 34Q60 61 46 88Q33 59 33 34" fill="#e77e2d" stroke="#b96329" stroke-width="1.5"/><path d="M40 42Q36 57 46 76" fill="none" stroke="#f6a858" stroke-width="3"/><g fill="none" stroke="#3e7947" stroke-linecap="round"><path d="M47 34 27 7m21 27L47 3m2 31L69 6" stroke-width="2.5"/><path d="m29 10-7 1m9 2 2-8m1 13-9 1m13 4 0-9m3 13-11 1M47 8l-6-3m6 8 7-6m-7 12-9-3m9 9 10-7m6-3 0-8m-3 12 10-3m-14 9 1-10m-5 15 12-4" stroke-width="3"/></g><path d="m37 48 9 2m1 10 9-2m-15 11 7 1" stroke="#b96329" stroke-width="2"/>',
     radish:'<path d="M31 35Q47 24 64 35Q70 64 49 85L44 91Q33 79 31 35" fill="#f5f2df" stroke="#7b825d" stroke-width="2"/><path d="M47 35Q19 18 24 5Q44 10 47 35M48 35Q40 7 51 3Q61 17 48 35M50 35Q59 8 77 10Q78 28 50 35" fill="#4b8850"/>',
     'sweet-potato':'<path d="M48 28Q28 37 25 45m23-17q6 12 14 22M48 28v39" fill="none" stroke="#b6a071" stroke-width="2"/><path d="M19 43Q27 35 34 45Q44 61 30 76Q22 83 17 73Q8 55 19 43" fill="#98516c"/><path d="M56 48Q66 40 74 49Q87 65 71 80Q61 85 55 74Q48 61 56 48" fill="#864563"/><path d="M39 67Q47 59 55 69Q62 83 48 92Q37 94 35 83Q33 75 39 67" fill="#9c5874"/><path d="M47 31Q43 18 34 13m14 16q11-7 17-14" fill="none" stroke="#6a8247" stroke-width="2.5"/><path d="M35 15Q22 2 18 13Q8 9 12 22Q16 31 36 32Q42 23 35 15M64 15Q69 0 78 10Q88 4 88 16Q84 29 65 31Q60 23 64 15" fill="#477849"/><path d="m32 27-12-10m48 9 10-12" stroke="#a4b982" stroke-width="1.5"/><path d="m20 52 5 2m3 13-5 2m36-11 6 2m5 10-5 2m-22 7 6 2" stroke="#ca8ca4" stroke-width="2"/>',
@@ -986,22 +996,17 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         }
       }else if(kind==="broccoli"){
         g.userData.leafStyle="floret-crown";g.userData.hitHeight=.85;
-        const stalk=ellipsoid(g,"#8ba463",0,.44,0,.14,.43,.13);stalk.name="broccoli-stalk";
+        const stalk=mesh(g,new T.CylinderGeometry(.14,.18,.62,24),material("#a3c67c",.84),0,.35,0);stalk.name="broccoli-stalk";
         for(const sign of [-1,1]){
           tube(g,[[0,.42,0],[sign*.22,.62,.03],[sign*.33,.81,.03]],.055,"#87a15e",14);
-          const leaf=plantSurface((t,v)=>{const width=.19*Math.sin(Math.PI*t)**.7;return [sign*(.08+t*.42),.21+t*.30+.06*(1-v*v),v*width];},"#59844b",24,10);
-          mesh(g,leaf,plantMaterial("#59844b")).name="broccoli-leaf";
+          const leaf=ellipsoid(g,"#76aa61",sign*.21,.32,.08,.24,.10,.10);leaf.rotation.z=sign*.42;leaf.name="broccoli-leaf";
         }
-        // Broad branching crown with small buds, not a smooth cabbage ball.
+        // Seven soft, joined florets: readable at a distance without a mass of tiny beads.
         const florets=new T.Group();florets.name="broccoli-florets";g.add(florets);
         for(let i=0;i<7;i++){
-          const a=i*2.399,r=i===0?0:.31,cx=Math.cos(a)*r,cz=Math.sin(a)*r,cy=i===0?1.04:.91+(i%2)*.04;
+          const a=i*2.399,r=i===0?0:.29,cx=Math.cos(a)*r,cz=Math.sin(a)*r,cy=i===0?1.04:.91+(i%2)*.04;
           tube(g,[[0,.57,0],[cx*.5,.76,cz*.5],[cx,cy-.05,cz]],.045,"#7c9a55",12);
-          ellipsoid(florets,i%2?"#426f3d":"#4f7e43",cx,cy,cz,.25,.18,.24);
-          for(let j=0;j<9;j++){
-            const angle=j*2.399,rr=.18*Math.sqrt((j+.5)/9),x=cx+Math.cos(angle)*rr,z=cz+Math.sin(angle)*rr;
-            ellipsoid(florets,j%3?"#477b3c":"#608d49",x,cy+.12+(.18-rr)*.45,z,.075,.075,.075);
-          }
+          ellipsoid(florets,i%2?"#599a50":"#64a658",cx,cy,cz,.28,.23,.27);
         }
       }else if(kind==="corn"){
         g.userData.leafStyle="corn-husk";g.userData.hitHeight=.90;
@@ -1307,12 +1312,22 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       const entry=this.fruits.get(id);if(!entry)return;
       if(mode==="pull")entry.mesh.position.copy(entry.position).add(new this.T.Vector3(0,Math.max(0,Math.min(.65,(start.y-y)/100)),0));
       else{
-        const rect=this.canvas.getBoundingClientRect(),depth=entry.position.clone().project(this.camera).z;
-        entry.mesh.position.copy(new this.T.Vector3((x-rect.left)/rect.width*2-1,1-(y-rect.top)/rect.height*2,depth).unproject(this.camera));
+        // Preserve the grab offset, but move on a camera-facing plane in front of the basket.
+        const rect=this.canvas.getBoundingClientRect(),p=entry.position.clone().project(this.camera);
+        const world=new this.T.Vector3(p.x+(x-start.x)/rect.width*2,p.y-(y-start.y)/rect.height*2,p.z).unproject(this.camera);
+        const direction=this.camera.getWorldDirection(new this.T.Vector3()),front=this.basketPosition.z+1.8;
+        world.addScaledVector(direction,(front-world.z)/direction.z);entry.mesh.position.copy(world);
       }
-      this.render();
+      // Mesh coordinates follow the newest event immediately; render at most once per display frame.
+      if(!this.dragFrame)this.dragFrame=requestAnimationFrame(()=>{this.dragFrame=null;this.render();});
     }
-    cancelDrag(id){const entry=this.fruits.get(id);if(entry){entry.mesh.position.copy(entry.position);entry.dragged=false;this.render();}}
+    dragPoint(id){const rect=this.canvas.getBoundingClientRect(),p=this.fruits.get(id).mesh.position.clone().project(this.camera);return {x:rect.left+(p.x+1)*rect.width/2,y:rect.top+(1-p.y)*rect.height/2};}
+    cancelDrag(id){const entry=this.fruits.get(id);if(entry){entry.harvestToken=(entry.harvestToken||0)+1;entry.returning=false;entry.mesh.position.copy(entry.position);entry.mesh.scale.setScalar(entry.scale);entry.dragged=false;this.render();}}
+    async dropOutside(id,reduced){
+      const entry=this.fruits.get(id),token=entry.harvestToken=(entry.harvestToken||0)+1,from=entry.mesh.position.clone();entry.returning=true;
+      await animate(340,t=>{if(token!==entry.harvestToken)return;entry.mesh.position.copy(from);entry.mesh.position.y-=t*t*5;entry.mesh.scale.setScalar(entry.scale*(1-.55*t));this.render();},reduced);
+      if(token===entry.harvestToken)this.cancelDrag(id);
+    }
     crowPosition(step){
       // Stop outside the basket, including its rotated rim and the crow's beak.
       const stopX=this.basketPosition.x-this.basketScale*2.4;
@@ -1426,7 +1441,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       this.resetCamera();
       if(this.steps!==FH.model.difficulties[state.difficulty].steps)this.setSteps(FH.model.difficulties[state.difficulty].steps);
       if(this.pathStones)this.danger(state.crow);
-      for(const [id,entry] of this.fruits){entry.harvestToken=(entry.harvestToken||0)+1;entry.mesh.visible=state.remaining.includes(id);entry.mesh.position.copy(entry.position);entry.mesh.scale.setScalar(entry.scale);entry.mesh.rotation.set(0,entry.rotation,0);entry.dragged=false;}
+      for(const [id,entry] of this.fruits){entry.harvestToken=(entry.harvestToken||0)+1;entry.returning=false;entry.mesh.visible=state.remaining.includes(id);entry.mesh.position.copy(entry.position);entry.mesh.scale.setScalar(entry.scale);entry.mesh.rotation.set(0,entry.rotation,0);entry.dragged=false;}
       if(this.environment==="field")for(const entry of this.fruits.values())if(entry.mesh.userData.root)entry.mesh.userData.root.visible=false;
       this.crow.position.copy(this.crowPosition(state.crow));this.crow.rotation.set(0,Math.PI/2,0);this.crow.scale.setScalar(1.14);this.crowStep=state.crow;
       this.rabbitPose(0);
@@ -1441,7 +1456,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       this.render();
     }
     async harvest(id,reduced,onPop=()=>{}) {
-      const entry=this.fruits.get(id),mesh=entry.mesh,end=this.basketPosition.clone().add(new this.T.Vector3(0,1.3,0));
+      const entry=this.fruits.get(id),mesh=entry.mesh,end=this.basketPosition.clone().add(new this.T.Vector3(0,.60,0));
       const token=entry.harvestToken=(entry.harvestToken||0)+1;this.harvestAnimations=(this.harvestAnimations||0)+1;
       if(this.environment==="field"){
         if(mesh.userData.root)mesh.userData.root.visible=true;
@@ -1449,11 +1464,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         await animate(250,t=>{if(token===entry.harvestToken){mesh.position.copy(from);mesh.position.y+=Math.sin(t*Math.PI/2)*(mesh.userData.pullLift||1.8);mesh.rotation.z=Math.sin(t*Math.PI)*.12;this.render();}},reduced);
         if(token!==entry.harvestToken){this.harvestAnimations=Math.max(0,this.harvestAnimations-1);return;}
       }
-      const start=mesh.position.clone();
-      await animate(entry.dragged&&this.environment!=="field"?220:780,t=>{
+      const start=mesh.position.clone(),opening=this.basketPosition.clone().add(new this.T.Vector3(0,2.6,0)),dragged=entry.dragged&&this.environment!=="field";
+      if(dragged){const direction=this.camera.getWorldDirection(new this.T.Vector3());opening.y=Math.min(opening.y,start.y+(opening.z-start.z)*direction.y/direction.z);}
+      // Arrive above the opening, then descend inside the rim instead of disappearing behind it.
+      await animate(dragged?320:560,t=>{
         if(token!==entry.harvestToken)return;
-        const eased=1-(1-t)**3;mesh.position.lerpVectors(start,end,eased);mesh.position.y+=Math.sin(Math.PI*t)*1.45;
-        mesh.scale.setScalar(entry.scale*(1-.69*t));mesh.rotation.y=entry.rotation+t*Math.PI*.8;
+        if(t<.6){const u=t/.6,eased=dragged?u*u:1-(1-u)**3;mesh.position.lerpVectors(start,opening,eased);if(!dragged)mesh.position.y+=Math.sin(Math.PI*u)*.65;}
+        else mesh.position.lerpVectors(opening,end,((t-.6)/.4)**2);
+        mesh.scale.setScalar(entry.scale*(1-.66*Math.min(1,t/.6)));mesh.rotation.y=entry.rotation+t*.7;
         this.basket.scale.setScalar(this.basketScale+(t>.72?Math.sin((t-.72)/.28*Math.PI)*.055:0));this.render();
       },reduced);
       this.harvestAnimations=Math.max(0,this.harvestAnimations-1);
@@ -1800,11 +1818,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
       };
       FH.model.fruits.forEach((fruit,i)=>{
         const field=environment==="field",position=[...positions[i]];if(field)position[1]+=i===0?.06:-.12;
-        const model=place(this.art.fruit(fruit.id,environment),field?1.75:1.55,position,-.08);model.name="welcome-"+fruit.id;
+        const model=place(this.art.fruit(fruit.id,environment),field?(fruit.id==="grape"?1.40:1.75):1.55,position,-.08);model.name="welcome-"+fruit.id;
       });
       place(this.art.basket(),1.55,[-1.75,-.55,.7],-.12);
       const field=environment==="field";
-      place(field?this.art.rabbit():this.art.crow({beakColor:"#d5ab43"}),field?2.15:2.35,[.7,field?-.18:-.08,1],-.45);
+      // Forest uses the original, round-eyed SVG crow in front of this canvas.
+      if(field)place(this.art.rabbit(),2.15,[.7,-.18,1],-.45);
       group.userData.environment=environment;this.groups.set(environment,group);return group;
     }
     configureEnvironment(environment){
@@ -1825,6 +1844,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   const FH=globalThis.FruitHarvest,$=id=>document.getElementById(id),M=FH.model,clock=FH.clock;
   let settings=FH.data.defaults(),game=null,resumeRecord=null,orchard,dice,welcome,ready=false,generation=0,ending=false,lastFieldOrder=null;
   let photoLoads=0,fullscreenBusy=false,activeHarvests=0,turnHarvest=[],wrongPicks=0,switchCandidate=null,switchTurn=0;
+  let rollCueTurn=0;
   let toastTimer,toastHideTimer,noticeTimer,noticeResolve,quietFeedbackTimer,turnTimer,saveTimer,lastSave=Promise.resolve(),storageWarned=false,graphicsLost=new Set(),lastRenderedTurn=0;
   const buttons=new Map(),labels=[];
   const validNames=new WeakMap(),photoRequests=new WeakMap();
@@ -1867,18 +1887,30 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
   function beginGesture(id,event){
     if(!canAct()||game.phase!=="harvest")return null;
     const mode=FH.theme.gesture(settings,settings.participants[game.turnIndex]);if(mode==="touch")return null;
+    if(orchard.fruits.get(id)?.returning)return {move(){},drop:()=>false,cancel(){}};
     if(game.face!=="basket"&&M.typeOf(id)!==game.face){void perform("pick",id);return {move(){},drop:()=>false,cancel(){}};}
     const ticket=generation,turn=game.turnNumber,start={x:event.clientX,y:event.clientY},panel=$("basketDrop"),rect=orchard.basketRect();
     if(mode==="drag"){
       const stage=$("orchardStage").getBoundingClientRect();Object.assign(panel.style,{left:rect.x-stage.left+"px",top:rect.y-stage.top+"px",width:rect.width+"px",height:rect.height+"px"});panel.hidden=false;
     }
     const valid=()=>ticket===generation&&game?.turnNumber===turn&&game.phase==="harvest"&&canAct()&&game.remaining.includes(id);
-    const cancel=()=>{orchard.cancelDrag(id);orchard.guideBasket(mode==="drag"&&valid());};
+    let released=false;
+    const cancel=()=>{if(!released)orchard.cancelDrag(id);orchard.guideBasket(mode==="drag"&&valid());};
     return {
-      move:e=>{if(valid())orchard.drag(id,e.clientX,e.clientY,mode,start);else cancel();},
+      move:e=>{
+        if(!valid()){cancel();return false;}
+        orchard.drag(id,e.clientX,e.clientY,mode,start);
+        if(mode==="pull"&&FH.theme.pullComplete(start,{x:e.clientX,y:e.clientY},$("orchardStage").clientHeight)){orchard.fruits.get(id).dragged=true;panel.hidden=true;return true;}
+        return false;
+      },
       drop:e=>{
         panel.hidden=true;
-        const accepted=valid()&&(mode==="pull"?FH.theme.pullComplete(start,{x:e.clientX,y:e.clientY},$("orchardStage").clientHeight):e.clientX>=rect.x&&e.clientX<=rect.x+rect.width&&e.clientY>=rect.y&&e.clientY<=rect.y+rect.height);
+        if(!valid())return false;
+        orchard.drag(id,e.clientX,e.clientY,mode,start);
+        const point=orchard.dragPoint?.(id)||{x:e.clientX,y:e.clientY},target=orchard.basketRect();
+        const inside=(x,y)=>x>=target.x&&x<=target.x+target.width&&y>=target.y&&y<=target.y+target.height;
+        const accepted=mode==="pull"?FH.theme.pullComplete(start,{x:e.clientX,y:e.clientY},$("orchardStage").clientHeight):inside(e.clientX,e.clientY)||inside(point.x,point.y)||(point.x>=target.x&&point.x<=target.x+target.width&&point.y<target.y);
+        if(!accepted&&mode==="drag"){released=true;void orchard.dropOutside(id,settings.reducedMotion);}
         if(accepted)orchard.fruits.get(id).dragged=true;return accepted;
       },cancel
     };
@@ -1929,11 +1961,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     return finished;
   }
   function showHandoff(){
+    rollCueTurn=0;
     const player=settings.participants[game.turnIndex],panel=$("turnHandoff");avatar($("handoffAvatar"),player,game.turnIndex);$("handoffName").textContent=player.name;
     const switched=FH.switchAccess.enabled(game,settings.participants),prompt=switched?"スイッチを 1回":"どこでも タッチ";
     $("handoffPrompt").textContent=prompt;panel.hidden=false;render();gate.open(0,0);
   }
-  function hideHandoff(){$("turnHandoff").hidden=true;render();}
+  function hideHandoff(){$("turnHandoff").hidden=true;rollCueTurn=game.turnNumber;render();}
   function preferences(){
     document.documentElement.style.fontSize=settings.fontSize+"px";
     document.documentElement.dataset.uiSize=String(settings.fontSize);
@@ -2078,11 +2111,16 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     $("statusLine").textContent=instruction;
     const canRoll=phase==="ready"&&graphicsLost.size===0&&$("turnHandoff").hidden&&!switched;
     $("diceStage").setAttribute("aria-disabled",String(!canRoll));$("diceStage").classList.toggle("roll-ready",canRoll);$("diceStage").tabIndex=canRoll?0:-1;
+    $("diceStage").classList.toggle("roll-calling",canRoll&&rollCueTurn===game.turnNumber);
     $("diceStage").setAttribute("aria-label",canRoll?player.name+"さんのさいころをふる":player.name+"さんのさいころ");
     $("inputMethod").textContent=FH.theme.operationLabel(settings,player);
-    const mode=FH.theme.gesture(settings,player),guide=$("switchGuide");guide.hidden=!switched&&(phase!=="harvest"||mode==="touch");
+    if(!switched&&["ready","rolling"].includes(phase))$("inputMethod").textContent=phase==="ready"?"さいころに タッチ":"さいころを ふっています";
+    const mode=FH.theme.gesture(settings,player),guide=$("switchGuide");guide.hidden=!switched&&(phase!=="ready"&&(phase!=="harvest"||mode==="touch"));
+    guide.classList.toggle("dice-prompt",canRoll);
+    if(!switched&&phase==="ready")guide.textContent="さいころに タッチ";
     orchard.guideBasket(phase==="harvest"&&mode==="drag"&&!switched&&graphicsLost.size===0);
     $("harvestInstruction").textContent=switched?"スイッチを 1回ずつ おして しゅうかく":mode==="pull"?"葉っぱを 上に ひっぱって しゅうかく":mode==="drag"?"かごまで ひっぱって はなそう":"おなじ くだものを タッチして しゅうかく";
+    if(phase!=="harvest")$("harvestInstruction").textContent=phase==="ready"?(switched?"スイッチを 1回で さいころ":"さいころに タッチ"):phase==="rolling"?"さいころを ふっています":"まってね";
     if(!switched&&phase==="harvest"&&mode!=="touch"){guide.textContent=mode==="pull"?"葉っぱを つかんで\n上に ひきぬこう":"くだものを かごまで\nひっぱって はなそう";$("statusLine").textContent=guide.textContent;}
     if(switched){
       if(!$("turnHandoff").hidden)guide.textContent="スイッチを 1回で はじめる";
@@ -2199,6 +2237,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     generation++;pauseGameplay(false);FH.audio.stop();ending=false;activeHarvests=0;wrongPicks=0;switchCandidate=null;switchTurn=0;lastRenderedTurn=0;dismissNotice();clearQuietFeedback();$("turnHandoff").hidden=true;$("confetti").className="confetti";$("confetti").replaceChildren();
     document.querySelectorAll("dialog[open]").forEach(d=>d.close());
     game=resume?M.restore(resume.game,settings.participants.length):M.create(settings.difficulty,settings.participants.length);
+    rollCueTurn=game.turnNumber;
     if(settings.environment==="field"){
       if(!resume)game.fieldOrder=FH.theme.shuffleOrder(lastFieldOrder||resumeRecord?.game.fieldOrder);
       lastFieldOrder=game.fieldOrder||M.fruits.map(f=>f.id);
@@ -2398,6 +2437,14 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     $("startButton").addEventListener("click",()=>{if(!$("setupView").hidden)start();});$("resumeButton").addEventListener("click",()=>{if(resumeRecord)start(resumeRecord);});
     $("helpButton").addEventListener("click",()=>openDialog("helpDialog"));$("aboutButton").addEventListener("click",()=>openDialog("aboutDialog"));$("optionsButton").addEventListener("click",()=>{preferences();openDialog("optionsDialog");});
     document.querySelectorAll("[data-close]").forEach(button=>button.addEventListener("click",()=>button.closest("dialog").close()));
+    for(const id of ["optionsDialog","teacherDialog"]){
+      const dialog=$(id);let outsidePointer=null;
+      const outside=e=>{const r=dialog.getBoundingClientRect();return e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom;};
+      dialog.addEventListener("pointerdown",e=>{if(e.target===dialog&&outside(e)&&outsidePointer===null)outsidePointer=e.pointerId;});
+      dialog.addEventListener("pointerup",e=>{if(e.pointerId!==outsidePointer)return;outsidePointer=null;if(e.target===dialog&&outside(e))dialog.close();});
+      dialog.addEventListener("pointercancel",e=>{if(e.pointerId===outsidePointer)outsidePointer=null;});
+      dialog.addEventListener("close",()=>{outsidePointer=null;});
+    }
     document.querySelectorAll("dialog").forEach(dialog=>dialog.addEventListener("close",()=>{if(dialog.id==="teacherDialog")pauseGameplay(false);placeFullscreenExit();allow();}));
     // Keep the outcome visible until an explicit next-game choice.
     $("endDialog").addEventListener("cancel",event=>event.preventDefault());
